@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # ==========================================
 # 1. DATEN EINLESEN (Data Ingestion)
@@ -96,3 +98,38 @@ df_merged = df_merged.drop(columns=['title_norm', 'Released_Year_RT', 'movie_tit
 
 print(f"\nErfolgreich verbundene Datensätze: {len(df_merged)}")
 print("\nEin Blick auf den neuen Datensatz:\n", df_merged.head())
+# ==========================================
+# 5. QUALITÄTSPRÜFUNG & VISUALISIERUNG
+# ==========================================
+
+print('\n--- Qualitätsprüfung ---')
+# Wir prüfen statistische Kennzahlen, um Sinnhaftigkeit zu verifizieren
+print(df_merged[['IMDB_Rating_100', 'tomatometer_rating']].describe())
+
+print('\n--- Erstelle Visualisierungen ---')
+sns.set_theme(style='whitegrid')
+
+# Plot 1: Scatterplot (Korrelation)
+plt.figure(figsize=(10, 6))
+# Scatterplot zeichnen
+sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', alpha=0.6, color='blue')
+# Diagonale Orientierungslinie (x=y) für den perfekten Match einzeichnen
+plt.plot([0, 100], [0, 100], color='red', linestyle='--', label='Perfekte Übereinstimmung')
+plt.title('Vergleich: IMDb Publikum vs. Rotten Tomatoes Kritiker')
+plt.xlabel('IMDb Rating (skaliert auf 100)')
+plt.ylabel('Rotten Tomatoes Rating')
+plt.xlim(50, 100)
+plt.ylim(0, 105)
+plt.legend()
+plt.savefig('rating_comparison_scatter.png')
+plt.close()
+
+# Plot 2: Boxplot (Verteilung und Outlier)
+plt.figure(figsize=(8, 5))
+df_melted = df_merged[['IMDB_Rating_100', 'tomatometer_rating']].melt(var_name='Plattform', value_name='Rating')
+sns.boxplot(data=df_melted, x='Plattform', y='Rating', hue='Plattform', legend=False, palette='Set2')
+plt.title('Rating-Verteilung der beiden Plattformen')
+plt.savefig('rating_distribution_boxplot.png')
+plt.close()
+
+print('Visualisierungen wurden als PNG-Dateien im Ordner gespeichert.')
