@@ -109,19 +109,46 @@ print(df_merged[['IMDB_Rating_100', 'tomatometer_rating']].describe())
 print('\n--- Erstelle Visualisierungen ---')
 sns.set_theme(style='whitegrid')
 
-# Plot 1: Scatterplot (Korrelation)
-plt.figure(figsize=(10, 6))
-# Scatterplot zeichnen
-sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', alpha=0.6, color='blue')
+# Plot 1: Scatterplot (Korrelation) - Verbessert mit Outlier-Markierungen
+plt.figure(figsize=(11, 7))
+
+# Berechne die absolute Differenz für jeden Punkt, um Outlier (Differenz > 20) zu markieren
+df_merged['Abweichung'] = abs(df_merged['IMDB_Rating_100'] - df_merged['tomatometer_rating'])
+df_merged['Ist_Outlier'] = df_merged['Abweichung'] > 20
+
+# Scatterplot zeichnen (Farbgebung & Größe nach Outlier-Status)
+sns.scatterplot(
+    data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', 
+    hue='Ist_Outlier', palette={False: '#3498db', True: '#e74c3c'},
+    alpha=0.8, s=60, legend=False
+)
+
+# Die extremsten Ausreißer namentlich im Plot markieren (Studentischer Bonus)
+outliers = df_merged.nlargest(4, 'Abweichung')
+for _, row in outliers.iterrows():
+    plt.text(row['IMDB_Rating_100'] + 0.5, row['tomatometer_rating'] - 1.5,
+             row['Series_Title'], fontsize=9, color='darkred', weight='bold')
+
 # Diagonale Orientierungslinie (x=y) für den perfekten Match einzeichnen
-plt.plot([0, 100], [0, 100], color='red', linestyle='--', label='Perfekte Übereinstimmung')
-plt.title('Vergleich: IMDb Publikum vs. Rotten Tomatoes Kritiker')
-plt.xlabel('IMDb Rating (skaliert auf 100)')
-plt.ylabel('Rotten Tomatoes Rating')
-plt.xlim(50, 100)
-plt.ylim(0, 105)
-plt.legend()
-plt.savefig('rating_comparison_scatter.png')
+plt.plot([0, 100], [0, 100], color='black', linestyle='--', linewidth=1.5, label='Perfekte Übereinstimmung')
+
+plt.title('Vergleich: Publikum vs. Kritiker (inkl. Markierung extremer Ausreißer)', fontsize=14, pad=15)
+plt.xlabel('IMDb Rating (Publikum, skaliert auf 100)')
+plt.ylabel('Rotten Tomatoes Rating (Kritiker)')
+plt.xlim(70, 95) # Maßstab besser auf die tatsächliche IMDb-Verteilung legen
+plt.ylim(10, 105)
+
+# Moderne Legende einfügen
+from matplotlib.lines import Line2D
+custom_lines = [
+    Line2D([0], [0], marker='o', color='w', markerfacecolor='#3498db', markersize=8, label='Normale Diskrepanz'),
+    Line2D([0], [0], marker='o', color='w', markerfacecolor='#e74c3c', markersize=8, label='Extremer Ausreißer (>20 PKT)'),
+    Line2D([0], [0], color='black', linestyle='--', lw=1.5, label='Perfekte Übereinstimmung')
+]
+plt.legend(handles=custom_lines, loc='lower right')
+
+plt.tight_layout()
+plt.savefig('rating_comparison_scatter.png', dpi=300)
 plt.close()
 
 # Plot 2: Boxplot (Verteilung und Outlier)
