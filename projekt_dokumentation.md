@@ -14,7 +14,7 @@ Das Ziel dieses Projekts ist der Vergleich von Filmbewertungen zwischen der Plat
 - [x] Pipeline
 - [x] Visualisierung
 - [x] Analyse
-- [ ] Protokoll / Projektbericht
+- [x] Protokoll / Projektbericht
 
 ## 3. Projekttagebuch & Dokumentation der Verarbeitungsschritte
 
@@ -45,9 +45,16 @@ Das Ziel dieses Projekts ist der Vergleich von Filmbewertungen zwischen der Plat
 - **Aktion:** Bibliotheken \matplotlib\ und \seaborn\ wurden eingebunden.
 - **Qualitätsprüfung:** Mittels \describe()\ analysiert. Das IMDb-Rating liegt im Schnitt bei ~79 %, das Kritiker-Rating bei ~88 %. Die Varianzen zeigen bereits, dass Kritiker stärkere Ausschläge zulassen (besser & schlechter).
 - **Visualisierungen (Pipeline-Output):**
-  - **Scatterplot (\ating_comparison_scatter.png\):** Zeigt die Korrelation. Er zeigt recht deutlich, dass Rotten Tomatoes stark bei beliebten Filmen streut (viele 100%, aber zum Teil auch weit unten bei 40-50%).
-  - **Boxplot (\ating_distribution_boxplot.png\):** Zeigt die Verteilungsunterschiede. Die IMDb-Werte sind sehr eng gefasst (Mitte zwischen 77 und 81), während das Tomatometer fast einen Bereich von 25 bis 100 hat.
+  - **Scatterplot (\
+ating_comparison_scatter.png\):** Zeigt die Korrelation. Er zeigt recht deutlich, dass Rotten Tomatoes stark bei beliebten Filmen streut (viele 100%, aber zum Teil auch weit unten bei 40-50%).
+  - **Boxplot (\
+ating_distribution_boxplot.png\):** Zeigt die Verteilungsunterschiede. Die IMDb-Werte sind sehr eng gefasst (Mitte zwischen 77 und 81), während das Tomatometer fast einen Bereich von 25 bis 100 hat.
 - **Analyse-Erkenntnis:** Das Publikum bewertet die Top-Filme durchweg positiv und dicht beieinander. Kritiker der Rotten Tomatoes Plattform sind weitaus strenger und bewerten deutlich diverser, vergeben aber kurioserweise auch öfter perfekte 100%-Punktzahlen als das Publikum.
 
 *Hiermit sind die Daten analysiert und die Vorbereitung für das Abschlussprotokoll/Projektbericht geschaffen.*
+
+
+### Schritt 5: Projektbericht
+- **Aktion:** Der finale formelle Forschungsbericht wurde unter \Projektbericht.md\ ausgearbeitet.
+- **Stand:** FHNW Checkliste erfolgreich abgearbeitet und Projekt abgeschlossen!
 
