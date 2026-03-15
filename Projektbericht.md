@@ -39,7 +39,13 @@ Um eine ausgiebige **Qualitätsprüfung** der transformierten Zielraten vorzuneh
   - *Begründung für Boxplot:* Er eignet sich optimal, um Varianzen, Mediane und Ausreißer in direkter Gegenüberstellung zweier Metriken darzustellen.
 - **Scatterplot (`rating_comparison_scatter.png`):** Das Streudiagramm illustriert sehr gut die Korrelation (bzw. deren Fehlen). Filme, die bei der IMDb-Zielgruppe eine stabile Wertung von um die 80 % genießen, fallen bei den Kritikern teils auf 100 %, teils tief unter 50 %.
   - *Begründung für Scatterplot:* Diese Darstellung mit einer perfekten Übereinstimmungslinie (x=y), deckt Divergenzen einzelner identischer Datenpunkte perfekt auf.
+- **KDE Plot / Dichteverteilung (`rating_density_kde.png`):** Eine anspruchsvolle Kernel-Density-Estimation (KDE) veranschaulicht die glatte Verteilungsfunktion beider Ratings ohne die künstlichen Bins eines Histogramms.
 
-## 4. Fazit
-Zusammenfassend lässt sich auf Grundlage der Daten festhalten, dass das breite Publikum populäre Filme deutlich "konservativer" und harmonischer bewertet. Eine Massenwertung bei IMDb gleicht sich stark an und erzeugt kaum negative Ausreißer nach unten, noch pefekte 10er-Ratings nach oben.
+## 4. Statistische Signifikanzprüfung & Erweiterte Analyse
+Um über ein rein visuelles "Deskriptiv"-Niveau hinauszugehen, wurde ein **gepaarter T-Test** (mittels `SciPy`) über die verbundenen Stichproben der beiden Datensätze durchgeführt.
+- **Ergebnis des T-Tests:** Die T-Statistik liegt bei -21.34 und der p-Wert bei $2.52^{-77}$. Da der p-Wert extrem nah an 0 ist, konnten wir die *Nullhypothese* (dass die Raten beider Gruppen systematisch identisch sind) verwerfen. Die Diskrepanz ist statistisch hoch signifikant!
+- **Genre-Cluster-Analyse:** Eine eigens entwickelte Lambda-Split-Logik zum Isolieren der Hauptgenres zeigte zudem auf, woher diese Unterschiede kommen: Während sich Kritiker und Publikum bei *Action* und *Mystery* meistens sehr ähnlich sind, gibt es bei *Comedy* (Durchschnittlich über 10 Punkte Abweichung) und *Animation* gravierende Meinungsverschiedenheiten.
+
+## 5. Fazit
+Zusammenfassend lässt sich auf Grundlage der Signifikanzprüfung festhalten, dass das breite Publikum populäre Filme deutlich "konservativer" und harmonischer bewertet. Eine Massenwertung bei IMDb gleicht sich stark an und erzeugt kaum negative Ausreißer nach unten, noch pefekte 10er-Ratings nach oben.
 Professionelle Kritiker auf Rotten Tomatoes nehmen hingegen deutlich extremere Positionen ein. Sie greifen weitaus häufiger zur makellosen Höchstwertung (100%), strafen aber auch Filme, die beim Publikum eigentlich recht beliebt sind, extrem hart ab. Die Bewertung von Kritikern polarisiert demnach weitaus stärker als die des Publikums.

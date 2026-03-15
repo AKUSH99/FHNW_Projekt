@@ -158,3 +158,34 @@ print('\nDurchschnittliche Differenz pro Hauptgenre (Top 10 Genres nach Häufigk
 top_genres = df_merged['Main_Genre'].value_counts().head(10).index
 genre_diffs = df_merged[df_merged['Main_Genre'].isin(top_genres)].groupby('Main_Genre')['Rating_Diff'].mean().sort_values()
 print(genre_diffs)
+
+# ==========================================
+# 7. WISSENSCHAFTLICHE SIGNIFIKANZ & ADVANCED PLOTTING
+# ==========================================
+from scipy import stats
+
+print('\n--- Statistische Signifikanzprüfung (Hypothesentest) ---')
+# Wir führen einen gepaarten t-Test durch, da es sich um dieselben Filme (verbundene Stichproben) handelt.
+# Nullhypothese: Es gibt keinen systematischen Unterschied zwischen IMDb und RT.
+t_stat, p_val = stats.ttest_rel(df_merged['IMDB_Rating_100'], df_merged['tomatometer_rating'])
+
+print(f'T-Statistik: {t_stat:.2f}')
+print(f'P-Wert: {p_val:.2e}')
+
+if p_val < 0.05:
+    print('Ergebnis: Die Nullhypothese wird abgelehnt. Der Unterschied in der Bewertung ist STATISTISCH SIGNIFIKANT und kein Zufall!')
+else:
+    print('Ergebnis: Die Nullhypothese bleibt bestehen. Die Unterschiede könnten Zufall sein.')
+
+# Plot 3: Kernel Density Estimate (KDE) - Eine sehr akademische Form der Verteilungsdarstellung
+plt.figure(figsize=(9, 5))
+sns.kdeplot(data=df_merged, x='IMDB_Rating_100', fill=True, label='IMDb (Publikum)', color='blue', alpha=0.5)
+sns.kdeplot(data=df_merged, x='tomatometer_rating', fill=True, label='Rotten Tomatoes (Kritiker)', color='green', alpha=0.3)
+plt.title('Dichteverteilung (KDE) der Ratings: Publikum vs. Kritiker')
+plt.xlabel('Rating (0-100)')
+plt.ylabel('Dichte')
+plt.legend()
+plt.savefig('rating_density_kde.png')
+plt.close()
+
+print('Erweiterter KDE-Plot wurde als rating_density_kde.png gespeichert.')
