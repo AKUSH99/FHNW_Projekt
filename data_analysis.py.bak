@@ -145,29 +145,8 @@ plt.close()
 
 print('Visualisierungen wurden als PNG-Dateien im Ordner gespeichert.')
 
-# ==========================================
-# 6. ERWEITERTE ANALYSE (Genres & Diskrepanz)
-# ==========================================
-
-print('\n--- Erweiterte Segmentierung (Streitfälle & Genres) ---')
-df_merged['Rating_Diff'] = df_merged['tomatometer_rating'] - df_merged['IMDB_Rating_100']
-
-# ==========================================
-# 7. WISSENSCHAFTLICHE SIGNIFIKANZ
-# ==========================================
-from scipy import stats
-t_stat, p_val = stats.ttest_rel(df_merged['IMDB_Rating_100'], df_merged['tomatometer_rating'])
-print('\n--- Statistische Signifikanzprüfung ---')
-print(f'T-Statistik: {t_stat:.2f}')
-print(f'P-Wert: {p_val:.2e}')
-
-# ==========================================
-# 8. TIEFENANALYSE & BUSINESS INSIGHTS (Note 6 Level - Optimiert)
-# ==========================================
-
-print('\n--- Starte erweiterte Tiefenanalyse (Zeitleiste & Quadranten) ---')
-
 # Plot 4: Epochen-Analyse / Regressions-Plot über die Jahre
+# Fragestellung: Werden Kritiker über die Jahre strenger im Vergleich zum Publikum?
 plt.figure(figsize=(12, 6))
 sns.regplot(data=df_merged, x='Released_Year', y='Rating_Diff',
             scatter_kws={'alpha':0.4, 'color':'teal', 's':40},
@@ -179,7 +158,7 @@ plt.ylabel('Differenz (Kritiker - Publikum)', fontsize=13)
 plt.xticks(fontsize=11)
 plt.yticks(fontsize=11)
 
-# Lesbare Text-Boxen
+# Lesbare Text-Boxen (damit die Datenpunkte den Text nicht überschreiben)
 props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8, edgecolor='gray')
 plt.text(1930, -35, 'Publikum liebt es mehr\nals Kritiker (Negative Differenz)', color='black', fontsize=12, bbox=props)
 plt.text(1930, 15, 'Kritiker lieben es mehr\nals Publikum (Positive Differenz)', color='black', fontsize=12, bbox=props)
@@ -195,19 +174,22 @@ plt.figure(figsize=(12, 9))
 sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', 
                 alpha=0.6, color='Slateblue', s=80, edgecolor='black', linewidth=0.5)
 
-# Linien
+# Quadranten-Linien bei den Medianen deutlich hervorheben
 plt.axvline(x=imdb_median, color='black', linestyle='--', alpha=0.7, linewidth=1.5)
 plt.axhline(y=rt_median, color='black', linestyle='--', alpha=0.7, linewidth=1.5)
 
-# BBox für Labels im Scatterplot
+# Quadranten benennen (mit leichten Offsets zu den Rändern) inkl. Text-Boxen für perfekte Lesbarkeit
 props_quadrant = dict(boxstyle='round,pad=0.6', facecolor='white', alpha=0.9, edgecolor='lightgray')
 
 plt.text(imdb_median + 0.3, rt_median + 5, 'Universelle Meisterwerke\n(Beide lieben es)', 
          fontsize=13, color='darkgreen', weight='bold', bbox=props_quadrant)
+         
 plt.text(76, rt_median + 5, 'Kritiker-Lieblinge\n(Der \"Snob-Effekt\")', 
          fontsize=13, color='darkorange', weight='bold', bbox=props_quadrant)
+         
 plt.text(imdb_median + 0.3, 30, 'Popcorn-Kino / Kultfilme\n(Massenpublikum favorisiert es)', 
          fontsize=13, color='darkblue', weight='bold', bbox=props_quadrant)
+         
 plt.text(76, 30, 'Kontroverses Nischen-Kino\n(Beide werten tief)', 
          fontsize=13, color='dimgrey', weight='bold', bbox=props_quadrant)
 
@@ -222,4 +204,4 @@ plt.ylim(20, 105)
 plt.savefig('magic_quadrant_analysis.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-print('Alle hochaufgeloesten Grafiken (Scatter, Boxplot, Regression, Quadrant) erfolgreich ueberschrieben und gespeichert!')
+print('Erweiterte Analysen wurden als \"rating_timeline_regression.png\" und \"magic_quadrant_analysis.png\" gespeichert.')
