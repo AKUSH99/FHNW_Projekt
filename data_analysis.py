@@ -66,3 +66,33 @@ df_rt['Released_Year_RT'] = df_rt['Released_Year_RT'].astype(int)
 # Info nach der Bereinigung
 print("\nIMDb nach Bereinigung:\n", df_imdb.info())
 print("\nRotten Tomatoes nach Bereinigung:\n", df_rt.info())
+
+# ==========================================
+# 4. DATENTRANSFORMATION (Data Integration / Feature Engineering)
+# ==========================================
+
+print("\n--- Starte Datentransformation (Zusammenführen) ---")
+
+# Vorbereitung: Umwandlung der Filmtitel in Kleinbuchstaben (Normalisierung)
+# Dies stellt sicher, dass "The Godfather" auf "the godfather" gematched wird
+df_imdb['title_norm'] = df_imdb['Series_Title'].str.lower().str.strip()
+df_rt['title_norm'] = df_rt['movie_title'].str.lower().str.strip()
+
+# Verknüpfung (Merge) der Datensätze über den normalisierten Titel (Inner Join)
+df_merged = pd.merge(df_imdb, df_rt, on='title_norm', how='inner')
+
+# Um Falschzuordnungen zu vermeiden (gleicher Titel, anderer Film),
+# prüfen wir, ob das Erscheinungsjahr (zwischen imdb und RT) maximal 2 Jahre voneinander abweicht.
+jahr_differenz_ok = abs(df_merged['Released_Year'] - df_merged['Released_Year_RT']) <= 2
+df_merged = df_merged[jahr_differenz_ok].copy()
+
+# Feature Engineering / Transformation:
+# IMDb ist eine Skala von 0-10, Rotten Tomatoes von 0-100.
+# Wir multiplizieren IMDb mit 10, um sie direkt zu vergleichen.
+df_merged['IMDB_Rating_100'] = df_merged['IMDB_Rating'] * 10
+
+# Bereinigung: Wir entfernen temporäre Spalten, die wir für den Vergleich nicht mehr brauchen
+df_merged = df_merged.drop(columns=['title_norm', 'Released_Year_RT', 'movie_title'])
+
+print(f"\nErfolgreich verbundene Datensätze: {len(df_merged)}")
+print("\nEin Blick auf den neuen Datensatz:\n", df_merged.head())

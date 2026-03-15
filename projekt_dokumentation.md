@@ -9,7 +9,7 @@ Das Ziel dieses Projekts ist der Vergleich von Filmbewertungen zwischen der Plat
 - [x] Daten: Mindestens 2 Datenquellen (IMDb Top 1000 & Rotten Tomatoes Datensatz)
 - [x] Fragen, die mit den Daten beantwortet werden sollen
 - [x] Datenbereinigung
-- [ ] Datentransformation
+- [x] Datentransformation
 - [ ] Qualitätsprüfung
 - [ ] Pipeline
 - [ ] Visualisierung
@@ -31,3 +31,12 @@ Das Ziel dieses Projekts ist der Vergleich von Filmbewertungen zwischen der Plat
   - IMDb: fehlerhafte Jahreszahlen per pd.to_numeric in NaN umgewandelt und gelöscht. Danach in Int-Format konvertiert (999 Zeilen verbleibend).
   - Rotten Tomatoes: Zeilen ohne 	omatometer_rating aussortiert. Aus dem originalen Startdatum wurde nur das Jahr in eine neue Spalte Released_Year_RT extrahiert (und alle ohne gültiges Jahr entfernt). Zum Schluss ins Int-Format konvertiert (16.514 Zeilen verbleibend).
 - **Aktueller Stand:** Daten sind jetzt formatiert und bereit für die Verknüpfung (Datentransformation).
+
+### Schritt 3: Datentransformation (Verknüpfung)
+- **Ziel:** Beide Datensätze zu einem großen DataFrame verbinden um die Ratings vergleichen zu können.
+- **Aktion (Datentransformation in data_analysis.py):**
+  - Titel in beiden Datensätzen wurden in Kleinbuchstaben umgewandelt und von Leerzeichen befreit, um eine höhere Trefferquote beim Merge zu erzielen.
+  - Die Tabellen wurden per *Inner Join* über den Titel (	itle_norm) zusammengefügt.
+  - **Qualitätssicherung bei Verknüpfung:** Um Remakes oder Titelüberschneidungen zu vermeiden, wurden alle zusammengefügten Zeilen entfernt, bei denen die Veröffentlichungsjahre der beiden Plattformen mehr als 2 Jahre voneinander abweichen.
+  - **Feature Engineering:** IMDb-Rating (1-10) wurde mit 10 multipliziert, um direkt mit dem Rotten Tomatoes Rating (1-100) vergleichbar zu sein (IMDB_Rating_100).
+- **Stand:** 664 Filme konnten erfolgreich und qualitativ hochwertig gematched werden. Die Checkliste wurde aktualisiert.
