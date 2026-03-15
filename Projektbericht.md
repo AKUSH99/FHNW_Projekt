@@ -10,26 +10,35 @@ Für die Analyse wurden zwei separate CSV-Datensätze herangezogen:
 - `imdb_top_1000.csv` (IMDb Ratings)
 - `rotten_tomatoes_movies.csv` (Rotten Tomatoes Ratings)
 
-### 2.1 Datenbereinigung
-Im ersten Schritt wurden die Daten eingelesen und auf fehlende Werte sowie falsche Datentypen geprüft:
-- Bei den **IMDb-Daten** lagen die Veröffentlichungsjahre zum Teil in inkorrekten String-Formaten (z.B. "PG") vor. Diese wurden entfernt und fehlerfrei in Integer umgewandelt (resultierend in 999 nutzbaren Datensätzen).
-- Im **Rotten Tomatoes-Datensatz** fehlten vereinzelt Ratings und Publikationsdaten. Zudem musste aus dem konkreten Datumscode (`YYYY-MM-DD`) das Jahr extrahiert werden. Datensätze ohne Rating wurden gelöscht (resultierend in 16.514 nutzbaren Datensätzen).
+### 2.1 Datenbereinigung & Qualitätsprüfung (Eingehend)
+Im ersten Schritt wurden die Daten eingelesen und auf fehlende Werte sowie falsche Datentypen geprüft.
+- Bei den **IMDb-Daten** lagen die Veröffentlichungsjahre zum Teil in inkorrekten String-Formaten (z.B. "PG") vor. Diese wurden entfernt und in Integer umgewandelt.
+- Im **Rotten Tomatoes-Datensatz** fehlten vereinzelt Ratings und Publikationsdaten. Zudem musste aus dem konkreten Datumscode (`YYYY-MM-DD`) das Jahr extrahiert werden. Datensätze ohne gültiges Rating oder Jahr wurden gelöscht.
+- **Begründung der Bereinigung:** Zeilen mit fehlenden Zielvariablen (Ratings) müssen zwingend gelöscht werden, da eine Imputation (z.B. Ersetzen durch Mittelwerte) das spätere Analyseergebnis für den Vergleich verfälschen würde. Die Umwandlung der Datumsformate in konsistente Jahre (Integer) war essentiell, um sie im nächsten Schritt als Kontrollmechanismus beim Mergen nutzen zu können.
 
 ### 2.2 Datentransformation (Verknüpfung)
 Um die Filmbewertungen direkt vergleichen zu können, wurden die zwei Datensätze zu einem zentralen DataFrame zusammengefasst:
-1. **Normalisierung:** Alle Filmtitel wurden konsequent kleingeschrieben und unnötige Leerzeichen entfernt.
+1. **Normalisierung:** Alle Filmtitel wurden konsequent kleingeschrieben und unnötige Leerzeichen entfernt. 
+   - *Begründung:* Unterschiedliche Schreibweisen oder Tippfehler (z.B. "The Godfather " vs "the godfather") würden einen Join verhindern.
 2. **Merging / Inner Join:** Beide Tabellen wurden über den normalisierten Filmtitel verknüpft.
-3. **Qualitätssicherung:** Um falsche Zuordnungen (z.B. bei Remakes gleichen Namens) auszufiltern, behielten wir nur Filme, deren Publikationsjahr in beiden Datensätzen um maximal 2 Jahre voneinander abweicht.
-4. **Feature Engineering:** Das IMDb-Rating (1-10) wurde rechnerisch mit 10 multipliziert (`IMDB_Rating_100`), um eine einheitliche 100-Punkte-Skala für den direkten Vergleich mit Rotten Tomatoes zu schaffen.
+   - *Begründung:* Ein Inner Join stellt sicher, dass wir am Ende nur Filme betrachten, die tatsächlich auf *beiden* Plattformen bewertet wurden.
+3. **Qualitätssicherung nach Join:** Um falsche Zuordnungen (z.B. bei Remakes gleichen Namens) auszufiltern, behielten wir nur Filme, deren Publikationsjahr in beiden Datensätzen um maximal 2 Jahre voneinander abweicht.
+   - *Begründung:* Viele Filmtitel wie "King Kong" existieren mehrfach. Der Check des Publikationsjahres ist ein verlässlicher Filter, um Äpfel mit Äpfeln zu vergleichen.
+4. **Feature Engineering:** Das IMDb-Rating (1-10) wurde rechnerisch mit 10 multipliziert (`IMDB_Rating_100`).
+   - *Begründung:* Ratingskalen müssen vor einem rechnerischen oder visuellen Vergleich normiert werden, um aussagekräftige Differenzen bilden zu können.
 
-Das Endresultat der Transformation ist ein hochqualitativer, zusammengeführter Datensatz mit **664 Filmen**.
+### 2.3 Die lauffähige Pipeline
+Sämtliche Schritte von lokaler Dateieinlesung, Bereinigung, Transformation bis hin zur automatischen Exportierung der Visualisierungen sind in einem zentralen Python-Skript (`data_analysis.py`) automatisiert. 
+- **Begründung der Pipeline-Architektur:** Dieser Code-First-Ansatz gewährleistet eine 100%ige Reproduzierbarkeit und Fehlerfreiheit bei der Durchführung ("Single Source of Truth").
 
 ## 3. Ergebnisse und Visualisierung
-Bereits die statistische Evaluierung zeigte deutliche Muster: Das IMDb-Rating liegt im Durchschnitt bei soliden 79.3 % (da es sich primär um Top-Filme handelt). Die Rotten Tomatoes Wertung liegt im Schnitt leicht höher (88.1 %), weißt aber mit einer Standardabweichung von 10.9 (RT) gegenüber 2.8 (IMDb) eine immens höhere Varianz auf.
+Um eine ausgiebige **Qualitätsprüfung** der transformierten Zielraten vorzunehmen, wurde die Distribution statistisch überprüft (`describe()`). Das IMDb-Rating liegt im Durchschnitt bei soliden 79.3 % (da es sich primär um Top-Filme handelt). Die Rotten Tomatoes Wertung liegt im Schnitt leicht höher (88.1 %), weißt aber mit einer Standardabweichung von 10.9 (RT) gegenüber 2.8 (IMDb) eine immens höhere Varianz auf.
 
 ### 3.1 Die Visualisierungen zeigen folgendes Bild:
-- **Boxplot (`rating_distribution_boxplot.png`):** Das Publikum (IMDb) bewertet die etablierten Klassiker extrem homogen – fast alle Filme liegen sehr dicht beieinander zwischen 76 % und 85 %. Bei den Kritikern (Rotten Tomatoes) ist der Wertebereich auf der Skala drastisch in die Länge gezogen. Das Spektrum reicht regulär tief bis auf 60 % und in den Extremen sogar bis auf die 20 %.
-- **Scatterplot (`rating_comparison_scatter.png`):** Das Streudiagramm illustriert sehr gut die geringe Korrelation der Ausschläge. Filme, die bei der IMDb-Zielgruppe eine stabile "Lieblingsfilm-Wertung" von um die 80 % genießen, fallen bei den Kritikern entweder auf perfekte 100 % (sehr häufig) oder sie stürzen mit Kritiker-Verrissen auf unter 50 % ab.
+- **Boxplot (`rating_distribution_boxplot.png`):** Das Publikum (IMDb) bewertet die etablierten Klassiker extrem homogen – fast alle Filme liegen sehr dicht beieinander zwischen 76 % und 85 %. Bei den Kritikern (Rotten Tomatoes) ist der Wertebereich auf der Skala drastisch in die Länge gezogen. 
+  - *Begründung für Boxplot:* Er eignet sich optimal, um Varianzen, Mediane und Ausreißer in direkter Gegenüberstellung zweier Metriken darzustellen.
+- **Scatterplot (`rating_comparison_scatter.png`):** Das Streudiagramm illustriert sehr gut die Korrelation (bzw. deren Fehlen). Filme, die bei der IMDb-Zielgruppe eine stabile Wertung von um die 80 % genießen, fallen bei den Kritikern teils auf 100 %, teils tief unter 50 %.
+  - *Begründung für Scatterplot:* Diese Darstellung mit einer perfekten Übereinstimmungslinie (x=y), deckt Divergenzen einzelner identischer Datenpunkte perfekt auf.
 
 ## 4. Fazit
 Zusammenfassend lässt sich auf Grundlage der Daten festhalten, dass das breite Publikum populäre Filme deutlich "konservativer" und harmonischer bewertet. Eine Massenwertung bei IMDb gleicht sich stark an und erzeugt kaum negative Ausreißer nach unten, noch pefekte 10er-Ratings nach oben.
