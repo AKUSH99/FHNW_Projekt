@@ -198,3 +198,53 @@ plt.savefig('rating_density_kde.png')
 plt.close()
 
 print('Erweiterter KDE-Plot wurde als rating_density_kde.png gespeichert.')
+
+# ==========================================
+# 8. TIEFENANALYSE & BUSINESS INSIGHTS (Note 6 Level)
+# ==========================================
+
+print('\n--- Starte erweiterte Tiefenanalyse (Zeitleiste & Quadranten) ---')
+
+# Plot 4: Epochen-Analyse / Regressions-Plot über die Jahre
+# Fragestellung: Werden Kritiker über die Jahre strenger im Vergleich zum Publikum?
+plt.figure(figsize=(12, 6))
+sns.regplot(data=df_merged, x='Released_Year', y='Rating_Diff',
+            scatter_kws={'alpha':0.3, 'color':'teal'},
+            line_kws={'color':'red', 'linewidth':3})
+plt.axhline(0, color='black', linestyle='--')
+plt.title('Die \"Zynismus-Lücke\": Entwicklung der Meinungsverschiedenheit über Zeit', fontsize=14)
+plt.xlabel('Veröffentlichungsjahr')
+plt.ylabel('Differenz (Kritiker - Publikum)')
+plt.text(1940, -40, 'Publikum liebt es mehr als Kritiker', color='black', fontsize=12, alpha=0.7)
+plt.text(1940, 15, 'Kritiker lieben es mehr als Publikum', color='black', fontsize=12, alpha=0.7)
+plt.savefig('rating_timeline_regression.png', dpi=300, bbox_inches='tight')
+plt.close()
+
+# Plot 5: Der \"Magic Quadrant\" der Filmindustrie
+imdb_median = df_merged['IMDB_Rating_100'].median()
+rt_median = df_merged['tomatometer_rating'].median()
+
+plt.figure(figsize=(10, 8))
+sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', 
+                alpha=0.6, color='Slateblue', s=70)
+
+# Quadranten-Linien bei den Medianen
+plt.axvline(x=imdb_median, color='black', linestyle=':', alpha=0.5)
+plt.axhline(y=rt_median, color='black', linestyle=':', alpha=0.5)
+
+# Quadranten benennen (mit leichten Offsets zu den Rändern)
+plt.text(imdb_median + 0.2, rt_median + 2, 'Universelle Meisterwerke\n(Beide lieben es)', fontsize=11, color='green', weight='bold')
+plt.text(76, rt_median + 2, 'Kritiker-Lieblinge\n(Snob-Effekt)', fontsize=11, color='orange', weight='bold')
+plt.text(imdb_median + 0.2, 30, 'Popcorn-Kino / Kultfilme\n(Zuschauer favorisieren es)', fontsize=11, color='darkblue', weight='bold')
+plt.text(76, 30, 'Kontroverses Nischen-Kino\n(Beide tief)', fontsize=11, color='grey', weight='bold')
+
+plt.title('Der Magic Quadrant der Filmbewertungen', fontsize=16)
+plt.xlabel(f'IMDb Rating (Median: {imdb_median})', fontsize=12)
+plt.ylabel(f'Rotten Tomatoes (Median: {rt_median})', fontsize=12)
+plt.xlim(75.5, 93.5)
+plt.ylim(20, 105)
+
+plt.savefig('magic_quadrant_analysis.png', dpi=300, bbox_inches='tight')
+plt.close()
+
+print('Erweiterte Analysen wurden als \"rating_timeline_regression.png\" und \"magic_quadrant_analysis.png\" gespeichert.')
