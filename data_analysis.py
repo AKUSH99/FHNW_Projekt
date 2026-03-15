@@ -112,16 +112,18 @@ sns.set_theme(style='whitegrid')
 # Plot 1: Scatterplot (Korrelation)
 plt.figure(figsize=(10, 6))
 # Scatterplot zeichnen
-sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', alpha=0.6, color='blue')
+sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', alpha=0.6, color='blue', s=60)
 # Diagonale Orientierungslinie (x=y) für den perfekten Match einzeichnen
-plt.plot([0, 100], [0, 100], color='red', linestyle='--', label='Perfekte Übereinstimmung')
-plt.title('Vergleich: IMDb Publikum vs. Rotten Tomatoes Kritiker')
-plt.xlabel('IMDb Rating (skaliert auf 100)')
-plt.ylabel('Rotten Tomatoes Rating')
+plt.plot([0, 100], [0, 100], color='red', linestyle='--', linewidth=2, label='Perfekte Übereinstimmung')
+plt.title('Vergleich: IMDb Publikum vs. Rotten Tomatoes Kritiker', fontsize=16, pad=15)
+plt.xlabel('IMDb Rating (skaliert auf 100)', fontsize=13)
+plt.ylabel('Rotten Tomatoes Rating', fontsize=13)
+plt.xticks(fontsize=11)
+plt.yticks(fontsize=11)
 plt.xlim(50, 100)
 plt.ylim(0, 105)
-plt.legend()
-plt.savefig('rating_comparison_scatter.png')
+plt.legend(fontsize=11, loc='lower right')
+plt.savefig('rating_comparison_scatter.png', dpi=300, bbox_inches='tight')
 plt.close()
 
 # Plot 2: Boxplot (Verteilung und Outlier) aufgehübscht mit Stripplot
@@ -143,80 +145,24 @@ plt.close()
 
 print('Visualisierungen wurden als PNG-Dateien im Ordner gespeichert.')
 
-# ==========================================
-# 6. ERWEITERTE ANALYSE (Genres & Diskrepanz)
-# ==========================================
-
-print('\n--- Erweiterte Segmentierung (Streitfälle & Genres) ---')
-
-# Wir berechnen die absolute Rating-Differenz, um die grössten Diskrepanzen zu finden
-df_merged['Rating_Diff'] = df_merged['tomatometer_rating'] - df_merged['IMDB_Rating_100']
-
-# Top 5 Filme, die Kritiker viel besser fanden als das Publikum
-print('\nKritiker-Lieblinge (Die RT viel besser bewertet als IMDb):')
-print(df_merged.nlargest(5, 'Rating_Diff')[['Series_Title', 'IMDB_Rating_100', 'tomatometer_rating', 'Rating_Diff']])
-
-# Top 5 Filme, die das Publikum viel besser fand als Kritiker (Negative Differenz)
-print('\nPublikums-Lieblinge (Die IMDb viel besser bewertet als RT):')
-print(df_merged.nsmallest(5, 'Rating_Diff')[['Series_Title', 'IMDB_Rating_100', 'tomatometer_rating', 'Rating_Diff']])
-
-# Kleine Genre-Analyse (Wir nehmen nur das Hauptgenre, meist das erste in der Komma-Liste)
-df_merged['Main_Genre'] = df_merged['Genre'].apply(lambda x: x.split(',')[0].strip())
-
-print('\nDurchschnittliche Differenz pro Hauptgenre (Top 10 Genres nach Häufigkeit):')
-top_genres = df_merged['Main_Genre'].value_counts().head(10).index
-genre_diffs = df_merged[df_merged['Main_Genre'].isin(top_genres)].groupby('Main_Genre')['Rating_Diff'].mean().sort_values()
-print(genre_diffs)
-
-# ==========================================
-# 7. WISSENSCHAFTLICHE SIGNIFIKANZ & ADVANCED PLOTTING
-# ==========================================
-from scipy import stats
-
-print('\n--- Statistische Signifikanzprüfung (Hypothesentest) ---')
-# Wir führen einen gepaarten t-Test durch, da es sich um dieselben Filme (verbundene Stichproben) handelt.
-# Nullhypothese: Es gibt keinen systematischen Unterschied zwischen IMDb und RT.
-t_stat, p_val = stats.ttest_rel(df_merged['IMDB_Rating_100'], df_merged['tomatometer_rating'])
-
-print(f'T-Statistik: {t_stat:.2f}')
-print(f'P-Wert: {p_val:.2e}')
-
-if p_val < 0.05:
-    print('Ergebnis: Die Nullhypothese wird abgelehnt. Der Unterschied in der Bewertung ist STATISTISCH SIGNIFIKANT und kein Zufall!')
-else:
-    print('Ergebnis: Die Nullhypothese bleibt bestehen. Die Unterschiede könnten Zufall sein.')
-
-# Plot 3: Kernel Density Estimate (KDE) - Eine sehr akademische Form der Verteilungsdarstellung
-plt.figure(figsize=(9, 5))
-sns.kdeplot(data=df_merged, x='IMDB_Rating_100', fill=True, label='IMDb (Publikum)', color='blue', alpha=0.5)
-sns.kdeplot(data=df_merged, x='tomatometer_rating', fill=True, label='Rotten Tomatoes (Kritiker)', color='green', alpha=0.3)
-plt.title('Dichteverteilung (KDE) der Ratings: Publikum vs. Kritiker')
-plt.xlabel('Rating (0-100)')
-plt.ylabel('Dichte')
-plt.legend()
-plt.savefig('rating_density_kde.png')
-plt.close()
-
-print('Erweiterter KDE-Plot wurde als rating_density_kde.png gespeichert.')
-
-# ==========================================
-# 8. TIEFENANALYSE & BUSINESS INSIGHTS (Note 6 Level)
-# ==========================================
-
-print('\n--- Starte erweiterte Tiefenanalyse (Zeitleiste & Quadranten) ---')
-
 # Plot 4: Epochen-Analyse / Regressions-Plot über die Jahre
 # Fragestellung: Werden Kritiker über die Jahre strenger im Vergleich zum Publikum?
 plt.figure(figsize=(12, 6))
 sns.regplot(data=df_merged, x='Released_Year', y='Rating_Diff',
-            scatter_kws={'alpha':0.3, 'color':'teal'},
+            scatter_kws={'alpha':0.4, 'color':'teal', 's':40},
             line_kws={'color':'red', 'linewidth':3})
-plt.axhline(0, color='black', linestyle='--')
-plt.title('Die \"Zynismus-Lücke\": Entwicklung der Meinungsverschiedenheit über Zeit', fontsize=14)
-plt.xlabel('Veröffentlichungsjahr')
-plt.ylabel('Differenz (Kritiker - Publikum)')
-plt.text(1940, -40, 'Publikum liebt es mehr als Kritiker', color='black', fontsize=12, alpha=0.7)
-plt.text(1940, 15, 'Kritiker lieben es mehr als Publikum', color='black', fontsize=12, alpha=0.7)
+plt.axhline(0, color='black', linestyle='--', linewidth=1.5)
+plt.title('Die \"Zynismus-Lücke\": Entwicklung der Meinungsverschiedenheit über Zeit', fontsize=16, pad=15)
+plt.xlabel('Veröffentlichungsjahr', fontsize=13)
+plt.ylabel('Differenz (Kritiker - Publikum)', fontsize=13)
+plt.xticks(fontsize=11)
+plt.yticks(fontsize=11)
+
+# Lesbare Text-Boxen (damit die Datenpunkte den Text nicht überschreiben)
+props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8, edgecolor='gray')
+plt.text(1930, -35, 'Publikum liebt es mehr\nals Kritiker (Negative Differenz)', color='black', fontsize=12, bbox=props)
+plt.text(1930, 15, 'Kritiker lieben es mehr\nals Publikum (Positive Differenz)', color='black', fontsize=12, bbox=props)
+
 plt.savefig('rating_timeline_regression.png', dpi=300, bbox_inches='tight')
 plt.close()
 
@@ -224,23 +170,34 @@ plt.close()
 imdb_median = df_merged['IMDB_Rating_100'].median()
 rt_median = df_merged['tomatometer_rating'].median()
 
-plt.figure(figsize=(10, 8))
+plt.figure(figsize=(12, 9))
 sns.scatterplot(data=df_merged, x='IMDB_Rating_100', y='tomatometer_rating', 
-                alpha=0.6, color='Slateblue', s=70)
+                alpha=0.6, color='Slateblue', s=80, edgecolor='black', linewidth=0.5)
 
-# Quadranten-Linien bei den Medianen
-plt.axvline(x=imdb_median, color='black', linestyle=':', alpha=0.5)
-plt.axhline(y=rt_median, color='black', linestyle=':', alpha=0.5)
+# Quadranten-Linien bei den Medianen deutlich hervorheben
+plt.axvline(x=imdb_median, color='black', linestyle='--', alpha=0.7, linewidth=1.5)
+plt.axhline(y=rt_median, color='black', linestyle='--', alpha=0.7, linewidth=1.5)
 
-# Quadranten benennen (mit leichten Offsets zu den Rändern)
-plt.text(imdb_median + 0.2, rt_median + 2, 'Universelle Meisterwerke\n(Beide lieben es)', fontsize=11, color='green', weight='bold')
-plt.text(76, rt_median + 2, 'Kritiker-Lieblinge\n(Snob-Effekt)', fontsize=11, color='orange', weight='bold')
-plt.text(imdb_median + 0.2, 30, 'Popcorn-Kino / Kultfilme\n(Zuschauer favorisieren es)', fontsize=11, color='darkblue', weight='bold')
-plt.text(76, 30, 'Kontroverses Nischen-Kino\n(Beide tief)', fontsize=11, color='grey', weight='bold')
+# Quadranten benennen (mit leichten Offsets zu den Rändern) inkl. Text-Boxen für perfekte Lesbarkeit
+props_quadrant = dict(boxstyle='round,pad=0.6', facecolor='white', alpha=0.9, edgecolor='lightgray')
 
-plt.title('Der Magic Quadrant der Filmbewertungen', fontsize=16)
-plt.xlabel(f'IMDb Rating (Median: {imdb_median})', fontsize=12)
-plt.ylabel(f'Rotten Tomatoes (Median: {rt_median})', fontsize=12)
+plt.text(imdb_median + 0.3, rt_median + 5, 'Universelle Meisterwerke\n(Beide lieben es)', 
+         fontsize=13, color='darkgreen', weight='bold', bbox=props_quadrant)
+         
+plt.text(76, rt_median + 5, 'Kritiker-Lieblinge\n(Der \"Snob-Effekt\")', 
+         fontsize=13, color='darkorange', weight='bold', bbox=props_quadrant)
+         
+plt.text(imdb_median + 0.3, 30, 'Popcorn-Kino / Kultfilme\n(Massenpublikum favorisiert es)', 
+         fontsize=13, color='darkblue', weight='bold', bbox=props_quadrant)
+         
+plt.text(76, 30, 'Kontroverses Nischen-Kino\n(Beide werten tief)', 
+         fontsize=13, color='dimgrey', weight='bold', bbox=props_quadrant)
+
+plt.title('Der Magic Quadrant der Filmbewertungen', fontsize=18, pad=20, weight='bold')
+plt.xlabel(f'IMDb Rating (Median {imdb_median})', fontsize=14)
+plt.ylabel(f'Rotten Tomatoes (Median {rt_median})', fontsize=14)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.xlim(75.5, 93.5)
 plt.ylim(20, 105)
 
