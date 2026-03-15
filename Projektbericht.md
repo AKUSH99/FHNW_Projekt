@@ -1,46 +1,36 @@
-# Empirische Analyse der Bewertungsdiskrepanzen zwischen Rezipienten und professionellen Kritikern in der Filmindustrie
+# Projektbericht: IMDb vs. Rotten Tomatoes – Ein Vergleich von Publikums- und Kritikerbewertungen
 
-**Zusammenfassung (Abstract)**
-Diese Studie untersucht die strukturellen Bewertungsunterschiede zwischen Breitenzuschauern (IMDb) und professionellen Filmkritikern (Rotten Tomatoes). Anhand eines methodisch bereinigten und originär zusammengeführten Datensatzes von N=664 filmischen Werken wird nachgewiesen, dass die Evaluierungen der Kritiker eine kohärent abweichende Varianz aufweisen. Ein gepaarter T-Test bestätigt auf einem Signifikanzniveau von p < 0.001, dass diese Differenzen systemischer Natur und nicht zufällig distributioniert sind. Eine longitudinale Regressionsanalyse deckt zudem eine im Zeitverlauf signifikant wachsende "Zynismus-Lücke" auf. Die Arbeit liefert ökonomisch verwertbare Implikationen zur zielgruppengerechten Allokation von Marketingbudgets in der Filmwirtschaft.
+## Management Abstract
+In dieser Projektarbeit wurde untersucht, wie sich die Filmbewertungen der breiten Masse (Zuschauer auf IMDb) von denen professioneller Filmkritiker (Rotten Tomatoes) unterscheiden. Nach der Zusammenführung und sorgfältigen Bereinigung der Datensätze zeigte die Analyse von 664 Filmen signifikante Unterschiede: Kritiker bewerten im Durchschnitt extremer (sowohl positiver als auch negativer) als das Publikum. Zudem zeigt sich über die Jahrzehnte eine wachsende "Zynismus-Lücke" – moderne Filme spalten Publikum und Kritiker zunehmend. Aus diesen Erkenntnissen lassen sich konkrete Marketing-Strategien für die Filmindustrie ableiten.
 
-## 1. Einleitung
-Im digitalen Zeitalter aggregieren Bewertungs-Plattformen sowohl massenhaft nutzergenerierte Referenzen (User-Generated Content) als auch kuratierte Expertenmeinungen. Die vorliegende Projektarbeit analysiert die Forschungsfrage, ob und inwiefern sich diese beiden Evaluierungssysteme empirisch unterscheiden. Im Fokus steht die Hypothese, dass professionelle Rezipienten (Fachkritiker) abweichende qualitative Maßstäbe ansetzen als das Konsumentenpublikum, und dass diese Diskrepanzen über Epochen und Genre-Cluster hinweg statistisch messbar variieren.
+## 1. Einleitung und Zielsetzung
+Dank Plattformen wie IMDb und Rotten Tomatoes stehen uns heute Millionen von Nutzerbewertungen sowie Einschätzungen von professionellen Kritikern zur Verfügung. Oft entsteht der Eindruck, dass Kritiker Filme anders wahrnehmen als das normale Kinopublikum. Ziel dieser Arbeit ist es, diese Vermutung anhand von Echtdaten empirisch zu überprüfen. Wir untersuchen, ob es messbare Abweichungen gibt und wie sich das Verhältnis zwischen Zuschauern und Experten im Laufe der Zeit entwickelt hat.
 
-## 2. Methodik und Datengrundlage
-Die Basis der quantitativen Untersuchung bilden zwei distinkte Datensätze, deren Merkmale zur Ermöglichung einer vergleichenden Analyse zunächst über eine automatisierte Pipeline bereinigt und transformiert wurden.
+## 2. Datengrundlage und Methodik
+Für die Analyse wurden zwei separate Datensätze verwendet und in einem Python-Skript (data_analysis.py) automatisiert verarbeitet:
 
-### 2.1 Datenbereinigung & Preprocessing
-- **IMDb-Metadaten:** Der ursprüngliche Datensatz wies strukturelle Anomalien in der Typisierung auf (z.B. alphanumerische Störvariablen wie "PG" in der Spalte des Veröffentlichungsjahres). Diese Unschärfen wurden durch systematische Filterung evaluiert, transformiert (Coercion to NaN) und in einen konsistenten Integer-Raum überführt (robuste Baseline: n=999).
-- **Rotten-Tomatoes-Datensatz:** Fehlende Zielvariablen (Ratings) sowie unvollständige Zeitstempel erforderten ein unkonditionales Data-Dropping, um spätere Verzerrungen durch Imputationstechniken zu vermeiden. Numerische Publikationsjahre wurden mittels Datums-Extraktion synthetisiert (Baseline: n=16.514).
+* **Datenbereinigung:** Zunächst wurden fehlende oder ungültige Werte entfernt und Datentypen standardisiert. Bei der IMDb mussten beispielsweise Buchstabendreher oder falsche Kürzel beim Erscheinungsjahr bereinigt werden, während bei Rotten Tomatoes Datumsangaben in ein einheitliches Format überführt wurden.
+* **Zusammenführung (Merge):** Die beiden Datensätze wurden basierend auf dem Filmtitel verknüpft. Um Fehler durch Remakes mit dem gleichen Titel zu vermeiden, wurden nur Filme zusammengeführt, deren Erscheinungsjahr maximal zwei Jahre voneinander abweicht.
+* **Vergleichbarkeit:** Das 10-Punkte-System der IMDb wurde mit 10 multipliziert, um es mit der 100-Prozent-Skala von Rotten Tomatoes ('Tomatometer') direkt vergleichen zu können.
 
-### 2.2 Datentransformation und Feature Engineering
-Zur Sicherstellung der inter-datensatzlichen Konkordanz wurde ein mehrstufiger Merge-Algorithmus implementiert:
-1. **Textuelle Normalisierung:** Konvertierung aller Titel in semantisch einheitliche Lowercase-Strings und Bereinigung redundanter Whitespaces.
-2. **Join-Operation & Exklusions-Validierung:** Die Korpora wurden via Inner Join verbunden. Um Fehlallokationen (z.B. durch namensgleiche Remakes) mathematisch zu unterbinden, wurde eine heuristische Zeitschranke implementiert, die Publikations-Diskrepanzen von $>2$ Jahren strikt exkludiert.
-3. **Metrische Skalierung:** Das 10-Punkte-System der IMDb wurde linear skaliert ($\times 10$), um eine metrische Kongruenz zur prozentualen Skala des Tomatometers zu etablieren. 
+Nach der Bereinigung verblieben 664 Filme, die in beiden Datensätzen vollständig dokumentiert waren.
 
-Sämtliche Schritte wurden in einem zustandslosen, vollreproduzierbaren Python-Skript (data_analysis.py) operationalisiert. Der resultierende, verifizierte Datensatz umfasst N=664 Beobachtungen.
+## 3. Ergebnisse der Analyse
 
-## 3. Deskriptive und Inferenzstatistische Ergebnisse
+### 3.1 Bewertungsverhalten im Vergleich
+Die Analyse der Punkte-Verteilungen (ating_density_kde.png) zeigt ein klares Bild: Das IMDb-Publikum bewertet Filme sehr homogen; die meisten Wertungen bewegen sich im Bereich um die 80 Punkte. Die Kritiker auf Rotten Tomatoes nutzen die Bewertungsspanne hingegen wesentlich stärker aus: Sie strafen durchgefallene Filme härter ab, vergeben aber auch deutlich öfter echte Spitzenwertungen (nahe 100%). Ein statistischer T-Test bestätigt anschaulich, dass die Unterschiede nicht zufällig sind, sondern eine grundlegend andere Bewertungslogik der Kritiker dahintersteckt ( < 0.001$).
 
-### 3.1 Verteilungsanalyse (Density Estimation)
-Die deskriptive Evaluation der Rating-Distributionen (ating_distribution_boxplot.png sowie ating_density_kde.png) belegt eine ausgeprägte Streuungshomogenität aufseiten der IMDb ($\mu = 79.31$, $\sigma = 2.81$). Das kritische Äquivalent (Rotten Tomatoes) verzeichnet zwar eine marginal höhere durchschnittliche Bewertung ($\mu = 88.17$), diese ist jedoch an eine signifikant expansivere Standardabweichung ($\sigma = 10.95$) gekoppelt. Die nicht-parametrische Dichteschätzung (KDE) illustriert präzise, dass Fachkritiker systematisch breiter distributionieren, kritischere Minima in Kauf nehmen, jedoch auch signifikant häufiger an das Skalenmaximum (100 %) konvergieren.
+### 3.2 Die "Zynismus-Lücke" im Zeitverlauf
+Ein Blick auf die zeitliche Entwicklung (ating_timeline_regression.png) deckte eine interessante Dynamik auf. Während historische Filmklassiker von Zuschauern und Kritikern oft noch ähnlich hoch bewertet wurden, geht die Schere ab dem Kino der 2000er-Jahre immer weiter auseinander. Moderne Blockbuster, die beim Publikum gut ankommen, fallen bei der Fachpresse immer häufiger durch. 
 
-### 3.2 Inferenzstatistische Hypothesenprüfung
-Um die Verteilungsdiskrepanzen inferenzstatistisch auf Signifikanz zu prüfen, wurde ein gepaarter T-Test für verbundene Stichproben (Paired Sample T-Test) herangezogen. Die resultierende Prüfgröße von  = -21.34$ generiert einen p-Wert von  = 2.52^{-77}$. Die Nullhypothese, nach der Kritiker und Publikum denselben Wertungs-Prämissen folgen, wird somit auf einem exzellenten Signifikanzniveau ($\alpha = 0.01$) zugunsten der Alternativhypothese verworfen.
+### 3.3 Der "Magic Quadrant" der Filmindustrie
+Um die Filme besser kategorisieren zu können, wurden sie im sogenannten "Magic Quadrant" plottiert (magic_quadrant_analysis.png), abgeleitet aus den jeweiligen Durchschnittswertungen:
+* **Klassiker / Meisterwerke:** Filmkunst, bei der sich Kritiker und Publikum einig sind (hohe Wertungen auf beiden Seiten).
+* **Kritiker-Lieblinge:** Filme mit hohem Anspruch, die von der Fachpresse gefeiert werden, aber das Massenpublikum eher überfordern oder langweilen.
+* **Popcorn-Kino:** Unterhaltung pur – das Publikum liebt den Film, die Kritiker vergeben jedoch schlechte Noten.
+* **Flops / Nischenfilme:** Filme, die weder die Experten noch die breite Masse überzeugen konnten.
 
-## 4. Tiefenanalyse: Temporalstruktur und Cluster-Typologie
-
-### 4.1 Longitudinale Regressionsanalyse ("Die Zynismus-Lücke")
-Eine zeitreihenbasierte multivariate Regression (ating_timeline_regression.png) fokussierte sich auf die Dynamik der Rating-Differenzen. Die empirische Beobachtung zeigt: Konvergierten die Bewertungen von Publikum und Fachexperten bis in die späten 1970er Jahre weitestgehend ($\Delta \approx 0$), offenbart die Regression ab dem modernen Post-2000er-Kino einen eklatanten Bruch. Neuzeitliche massenkompatible Publikumsfavoriten werden vom Fachjournalismus signifikant häufiger abgestraft – ein statistischer Trend, der als wachsende "Zynismus-Lücke" klassifiziert werden kann.
-
-### 4.2 Heuristische Matrix-Klassifikation ("Magic Quadrant")
-Mittels zweidimensionaler Raum-Lokalisierung an den Schnittpunkten der bivariaten Mediane (magic_quadrant_analysis.png) lässt sich der Datensatz topologisch in vier Cluster (Archetypen) stratifizieren:
-- **Quadrant I (Universeller Konsens):** Kritischer und zuschauerseitiger Konsens auf höchstem Niveau (z.B. etablierte historische Klassiker).
-- **Quadrant II (Der Snob-Effekt):** Disproportional starke Kritiker-Rezeption bei gleichzeitiger zuschauerseitiger Stagnation.
-- **Quadrant III (Kult- & Popcorn-Kino):** Hohe Publikumsgunst, die vom professionellen Diskurs empirisch abgelehnt wird.
-- **Quadrant IV (Nischen-/Kontroverskino):** Systematisch sub-mediane Performanz in beiden Rezipientengruppen.
-
-## 5. Diskussion und Wirtschaftliche Implikationen (So What?)
-Die quantitativen Resultate falsifizieren den industrieinternen Konsens, dass aggregiertes Massen-Feedback und kuratierte High-End-Kritiken als austauschbare KPI-Metriken fungieren. Für Filmdistributoren und Produktionsgesellschaften bieten primär die identifizierten Streuungs-Cluster (Vgl. 4.2) wertvolle Erkenntnisse betreffend der Budget-Allokation: 
-Wird durch Test-Screenings ein Film dem Archetypus des Quadranten III ("Popcorn-Kino") zugeordnet, empfiehlt das ökonomische Modell einen Verzicht auf kostenintensive Vorab-Screenings für die Fachpresse. Statt der Inkaufnahme absehbarer PR-Restriktionen durch negative Fachevaluierungen, bedingt dieser Cluster eine zuschauerzentrierte Grassroots- oder Social-Media-Kampagne. Bei Quadrant-II-Werken ist zur Erschließung des Marktpotenzials hingegen zwingend die publizistische Hebelwirkung der elitären Kritikerebene zu instrumentalisieren.
+## 4. Fazit und Nutzen für die Praxis
+Die Resultate beweisen, dass Kritiker- und Zuschauerwertungen zwei völlig unterschiedliche Zielgruppen und Massstäbe abbilden. Diese Erkenntnis hat direkten Nutzen für das Filmmarketing:
+* **Bei "Popcorn-Kino":** Wenn Test-Screenings zeigen, dass ein Film dem Publikum extrem gefällt, der anspruchsvollen Fachpresse aber wohl missfällt, sollte das Marketingbudget primär in Social Media und Fan-Kampagnen fliessen. Teure Fachpresse-Screenings sollten gemieden werden, um schlechte PR zu umgehen.
+* **Bei "Kritiker-Lieblingen":** Hier ist eine clevere Presse-Strategie entscheidend. Exklusive Vorführungen auf Festivals und starke Reviews in Zeitschriften können dem Film das nötige Prestige verleihen, um anschliessend als "Muss-man-gesehen-haben"-Titel das Interesse des normalen Publikums zu wecken.
