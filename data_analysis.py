@@ -133,3 +133,28 @@ plt.savefig('rating_distribution_boxplot.png')
 plt.close()
 
 print('Visualisierungen wurden als PNG-Dateien im Ordner gespeichert.')
+
+# ==========================================
+# 6. ERWEITERTE ANALYSE (Genres & Diskrepanz)
+# ==========================================
+
+print('\n--- Erweiterte Segmentierung (Streitfälle & Genres) ---')
+
+# Wir berechnen die absolute Rating-Differenz, um die grössten Diskrepanzen zu finden
+df_merged['Rating_Diff'] = df_merged['tomatometer_rating'] - df_merged['IMDB_Rating_100']
+
+# Top 5 Filme, die Kritiker viel besser fanden als das Publikum
+print('\nKritiker-Lieblinge (Die RT viel besser bewertet als IMDb):')
+print(df_merged.nlargest(5, 'Rating_Diff')[['Series_Title', 'IMDB_Rating_100', 'tomatometer_rating', 'Rating_Diff']])
+
+# Top 5 Filme, die das Publikum viel besser fand als Kritiker (Negative Differenz)
+print('\nPublikums-Lieblinge (Die IMDb viel besser bewertet als RT):')
+print(df_merged.nsmallest(5, 'Rating_Diff')[['Series_Title', 'IMDB_Rating_100', 'tomatometer_rating', 'Rating_Diff']])
+
+# Kleine Genre-Analyse (Wir nehmen nur das Hauptgenre, meist das erste in der Komma-Liste)
+df_merged['Main_Genre'] = df_merged['Genre'].apply(lambda x: x.split(',')[0].strip())
+
+print('\nDurchschnittliche Differenz pro Hauptgenre (Top 10 Genres nach Häufigkeit):')
+top_genres = df_merged['Main_Genre'].value_counts().head(10).index
+genre_diffs = df_merged[df_merged['Main_Genre'].isin(top_genres)].groupby('Main_Genre')['Rating_Diff'].mean().sort_values()
+print(genre_diffs)

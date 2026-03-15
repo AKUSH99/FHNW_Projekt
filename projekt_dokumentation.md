@@ -13,7 +13,7 @@ Das Ziel dieses Projekts ist der Vergleich von Filmbewertungen zwischen der Plat
 - [x] Qualitätsprüfung
 - [x] Pipeline
 - [x] Visualisierung
-- [x] Analyse
+- [x] Analyse & Erweiterte Genre-Filterung
 - [x] Protokoll / Projektbericht
 
 ## 3. Projekttagebuch & Dokumentation der Verarbeitungsschritte
@@ -57,4 +57,10 @@ ating_distribution_boxplot.png\):** Zeigt die Verteilungsunterschiede. Die IMDb-
 ### Schritt 5: Projektbericht
 - **Aktion:** Der finale formelle Forschungsbericht wurde unter \Projektbericht.md\ ausgearbeitet.
 - **Stand:** FHNW Checkliste erfolgreich abgearbeitet und Projekt abgeschlossen!
+
+
+### Schritt 6 (Zusatz): Erweiterte Analyse
+- **Aktion:** Um dem Projekt mehr Tiefe zu verleihen, haben wir am Ende von \data_analysis.py\ eine Berechnung der **Rating Differenz** eingebaut.\
+- **Erkenntnis 1 (Konkrete Titel):** Filme wie *The Boondock Saints* und *Seven Pounds* sind die extremsten Beispiele für Publikums-Lieblinge (ca. 77% auf IMDb), die von Kritikern in der Luft zerrissen wurden (ca. 26% RT).
+- **Erkenntnis 2 (Genres):** Wir haben das String-Feld \Genre\ getrennt um das Hauptgenre zu extrahieren. Analysen zeigen: Bei *Mystery* und *Action*-Filmen sind sich Kritiker und Publikum meistens am ähnlichsten. Bei *Comedy* und *Animation* gibt es die stärksten Meinungsdifferenzen zwischen den Lagern.
 
